@@ -1,17 +1,20 @@
 import ip2geotools
 from ip2geotools.databases.noncommercial import DbIpCity
+from geopy.geocoders import Nominatim
+geolocator = Nominatim(user_agent='myapplication')
 
 def ipToGeo(filename):
 	file = open(filename)
 	locations = {}
+	errorIPs = set()
 
 	ip = file.readline().strip()
 	while(ip):
-		print(ip)
+		#print(ip)
 
 		try: 
 			response = DbIpCity.get(ip, api_key='free')
-			print(response)
+			#print(response)
 			city = response.city
 			region = response.region
 			location = region + " " + city
@@ -20,7 +23,18 @@ def ipToGeo(filename):
 			if location in locations:
 				locations[location][2] += 1 # increase count
 			else:
+				if longitude == None or latitude == None:
+					print("!!! Coordinates not found for",city,"from IP",ip)
+					errorIPs.add((ip,"NoneLatLong"))
+					alt = geolocator.geocode(region)
+					longitude = alt.longitude
+					latitude = alt.latitude
+					print("Using coordinates for region",region,"instead.")
 				locations[location] = [longitude, latitude, 1]
+		except Exception as e:
+			print("!!! Error",e,"occurred for IP address",ip,"skipping.")
+			errorIPs.add((ip,e))
+		'''
 		except ip2geotools.errors.LocationError:
 			print(ip + ':a generic location error.')
 		except ip2geotools.errors.IpAddressNotFoundError:
@@ -37,10 +51,14 @@ def ipToGeo(filename):
 			print(ip + ':limits of geolocation database have been reached.')
 		except:
 			print(ip + ':key error.')
-
+		'''
+		
 		ip = file.readline().strip()
 
+
+
 	file.close()
-	print(locations)
+	#print(locations)
+	print("These IP addresses had errors:\n",errorIPs)
 	return locations
 
