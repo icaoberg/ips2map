@@ -10,11 +10,6 @@ parser.add_argument("-m", "--marker", help="shape of the markers", default = "o"
 
 args = parser.parse_args()
 
-# if args.file:
-# 	file = args.file
-# if args.output:
-# 	output = 
-
 import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
@@ -33,7 +28,7 @@ print('Setting up basemap')
 m = Basemap(resolution='i', # c, l, i, h, f or None
 	projection='merc',
 	lat_1=45.,lat_2=55,lat_0=50,lon_0=-107,
-        llcrnrlon=-180, llcrnrlat=-70, urcrnrlon=180, urcrnrlat=80)
+		llcrnrlon=-180, llcrnrlat=-70, urcrnrlon=180, urcrnrlat=80)
 
 print('Drawing map boundary')
 m.drawmapboundary(fill_color='#45bcec')
@@ -48,17 +43,16 @@ print('Obtaining geographic information from IPs')
 locations = ipToGeo(args.file)
 
 print('Preparing plot')
-scale = 0.5
+scale = 1 #was 0.5
 plt.title("IP Addresses Around the World")
 for k, v in locations.items():
 	lon = v[0]
 	lat = v[1]
 	markerSize = scale*v[2]
 
-	print('Adding to (lat,lon):(' + str(lat) + ',' + str(lon) + ') with marker size ' + str(markerSize)); 
-	x, y = m(lat, lon)
+	#print('Adding to (lat,lon):(' + str(lat) + ',' + str(lon) + ') with marker size ' + str(markerSize)); 
+	x, y = m(lon,lat) #the latitude and longitude got switched at some point, but this is the correct plot
 	plt.plot(x, y, markersize = markerSize, color = args.color, marker = args.marker)
-	#plt.text(x,y, bp, fontsize=8);
 
 plt.savefig(args.output, bbox_inches = 'tight', format = 'eps', dpi = 1200)
-
+print("Done! Created "+str(args.output)+" in the current directory.")
