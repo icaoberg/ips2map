@@ -1,5 +1,9 @@
 #!/bin/bash
 
-pip install ip2geotools
-pip install --user git+https://github.com/matplotlib/basemap.git
+brew install libgeoip
 
+python3 -m venv .
+source ./bin/activate
+pip3 install ip2geotools numpy scipy matplotlib
+pip3 install --user git+https://github.com/matplotlib/basemap.git
+deactivate
